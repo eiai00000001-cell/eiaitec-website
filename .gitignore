@@ -1,5 +1,8 @@
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 
 # Node.js / Next.js
 node_modules/
@@ -9,15 +12,42 @@ build/
 dist/
 
 # Environment variables
+# 原則すべての .env 系を追跡対象外とし、値を含まないテンプレート
+# (.env.example) のみ明示的に許可する。
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+.env.vault
+
+# Credentials / keys(秘密鍵・証明書・認証情報の誤コミット防止)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*credentials*.json
+*service-account*.json
+secrets.json
+secrets.yml
+secrets.yaml
 
 # Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Local tooling
+.claude/settings.local.json
+.turbo/
 
 # Editor / IDE
 .vscode/
