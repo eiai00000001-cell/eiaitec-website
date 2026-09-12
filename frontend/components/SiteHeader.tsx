@@ -1,0 +1,46 @@
+import Image from "next/image";
+import { HeaderHeightSync } from "./HeaderHeightSync";
+import { MobileNavMenu } from "./MobileNavMenu";
+
+const NAV_LINKS = [
+  { href: "#services", label: "サービス" },
+  { href: "#portfolio", label: "実績" },
+  { href: "#about", label: "EIAI TECとは" },
+] as const;
+
+/**
+ * 詳細設計書 4.1節(F-01: ヘッダー・グローバルナビゲーション)。
+ * ロゴ・3件のナビゲーションリンク・お問い合わせボタンを描画する(Server Component)。
+ * リンクは通常の<a href="#xxx">要素とし、JavaScriptによる独自のスクロール制御は行わない
+ * (CSS側の `html{scroll-behavior:smooth;}` によるアンカージャンプに委ねる)。
+ */
+export function SiteHeader() {
+  return (
+    <header className="site">
+      <HeaderHeightSync />
+      <div className="wrap site-bar">
+        <a href="#" className="brand">
+          <Image src="/images/icon.png" alt="EIAI TEC" width={1254} height={1254} priority />
+          EIAI TEC
+        </a>
+        <nav className="site-nav">
+          {NAV_LINKS.map((link) => (
+            <a key={link.href} href={link.href}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <div className="bar-actions">
+          <a
+            href="#contact"
+            className="btn btn-primary"
+            style={{ padding: "10px 20px", fontSize: "0.85rem" }}
+          >
+            お問い合わせ
+          </a>
+          <MobileNavMenu />
+        </div>
+      </div>
+    </header>
+  );
+}
