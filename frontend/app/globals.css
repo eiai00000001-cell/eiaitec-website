@@ -87,6 +87,15 @@ h1,h2,h3{
   text-wrap:balance;
   margin:0;
 }
+/* 日本語見出し内の「区切りの良い改行」対応(基本設計書7章「非機能設計方針」参照)。
+   `word-break:keep-all`は文中に句読点等の区切りがない短いフレーズには効かず
+   (検証済み: keep-all + overflow-wrap:break-wordでも通常のwordbreak:normalと
+   同じ位置で強制的に割れてしまう)、代わりにカタカナ複合語・専門用語など
+   分断すると不格好になる単語のまとまりを`<span class="no-split">`で囲み、
+   white-space:nowrapによってその単語を1つの塊として折り返す位置を決めさせる。
+   本サイトで新規に見出し・強調テキストを実装する際は、分断すると不自然になる
+   語がある場合にこのクラスを使うこと。 */
+.no-split{white-space:nowrap;}
 p{margin:0;}
 
 a{color:inherit;}
@@ -189,8 +198,26 @@ nav.site-nav a:hover, nav.site-nav a:focus-visible{color:var(--ink);}
 }
 @media (max-width:640px){
   .menu-toggle{display:flex;}
+  /* モバイル表示ではヘッダーのお問い合わせボタンを非表示にし、
+     ロゴ(左)とハンバーガーメニュー(右)のみを横一列に配置する。
+     お問い合わせ導線は展開後のモバイルメニュー内`.panel-cta`に一本化する。
+     `.btn-primary`(299行目〜)がこの規則より後に定義されており、`.header-contact`
+     単一クラスだと詳細度が同点で後勝ちし上書きされてしまうため、`.btn`との
+     複合セレクタにして詳細度を上げ、確実に上書きする。 */
+  .header-contact.btn{display:none;}
 }
 .mobile-panel{
+  /* 詳細設計書/mobile-nav.htmlの意匠では`.mobile-panel`は<header>の外側の
+     兄弟要素(ヘッダー直下に配置されるブロック)だが、本実装ではコンポーネント構成上
+     `MobileNavMenu`内で開閉ボタンと状態を共有する都合上、`.bar-actions`(横並びflex)の
+     子要素になっている。position:absoluteで通常のflexレイアウトから切り離し、
+     ヘッダー(position:stickyで配置コンテキストになる)を基準にヘッダー直下・画面幅いっぱいに
+     配置することで、閉じている間も横幅を消費してしまい隣のロゴ+ボタンが折り返される
+     問題を回避しつつ、意匠通りの見た目を再現する。 */
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
   background:var(--paper);
   border-bottom:0 solid var(--line-strong);
   overflow:hidden;
@@ -544,3 +571,34 @@ footer{
   color:var(--ink);
 }
 .footer-brand img{width:48px;height:48px;}
+
+/* ---------- back to top(クライアント要望による追加。詳細設計書には未記載) ---------- */
+.back-to-top{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  width:48px;
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--accent);
+  color:var(--accent-ink);
+  font-size:1.2rem;
+  line-height:1;
+  text-decoration:none;
+  box-shadow:0 4px 14px color-mix(in srgb, var(--ink) 25%, transparent);
+  z-index:30;
+  transition:background 0.2s ease;
+}
+.back-to-top:hover,
+.back-to-top:focus-visible{background:var(--accent-deep);}
+@media (max-width:640px){
+  .back-to-top{
+    right:16px;
+    bottom:16px;
+    width:44px;
+    height:44px;
+  }
+}

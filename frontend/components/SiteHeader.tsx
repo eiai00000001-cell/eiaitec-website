@@ -13,6 +13,10 @@ const NAV_LINKS = [
  * ロゴ・3件のナビゲーションリンク・お問い合わせボタンを描画する(Server Component)。
  * リンクは通常の<a href="#xxx">要素とし、JavaScriptによる独自のスクロール制御は行わない
  * (CSS側の `html{scroll-behavior:smooth;}` によるアンカージャンプに委ねる)。
+ *
+ * ヘッダーの「お問い合わせ」ボタン(`.header-contact`)は画面幅640px以下では
+ * CSS側で非表示にする(モバイル版はロゴ・ハンバーガーメニューのみを横一列に配置し、
+ * お問い合わせ導線は展開後のモバイルメニュー内`.panel-cta`に一本化する)。
  */
 export function SiteHeader() {
   return (
@@ -33,7 +37,7 @@ export function SiteHeader() {
         <div className="bar-actions">
           <a
             href="#contact"
-            className="btn btn-primary"
+            className="btn btn-primary header-contact"
             style={{ padding: "10px 20px", fontSize: "0.85rem" }}
           >
             お問い合わせ

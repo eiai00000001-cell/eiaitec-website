@@ -5,6 +5,7 @@ import { PortfolioSection } from "@/components/PortfolioSection";
 import { AboutSection } from "@/components/AboutSection";
 import { ContactSection } from "@/components/ContactSection";
 import { SiteFooter } from "@/components/SiteFooter";
+import { BackToTopButton } from "@/components/BackToTopButton";
 
 // 詳細設計書 4.12節-3: フッターの著作権年をリクエスト時に評価するため、
 // このページ(トップページ全体)を都度レンダリングする。
@@ -26,6 +27,7 @@ export default function HomePage() {
         <ContactSection />
       </main>
       <SiteFooter />
+      <BackToTopButton />
     </>
   );
 }

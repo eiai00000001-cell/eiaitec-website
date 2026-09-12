@@ -35,7 +35,7 @@ export function HeroHeading() {
         <span ref={headingRef}>
           <span className="accent">AI</span>と<span className="accent">EI(感性)</span>で
           <br />
-          働き方をアップデート。
+          働き方を<span className="no-split">アップデート。</span>
         </span>
       </h1>
     </>
