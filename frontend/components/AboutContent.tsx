@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { SectionHeading } from "./SectionHeading";
 import { useAboutMarkCenter } from "@/hooks/useAboutMarkCenter";
-import { SECTION_EYEBROW_GROUP_ID } from "./ServicesSection";
+import { SECTION_EYEBROW_GROUP_ID } from "@/lib/constants";
 
 /**
  * 詳細設計書 4.7節(F-05: Aboutセクション)。

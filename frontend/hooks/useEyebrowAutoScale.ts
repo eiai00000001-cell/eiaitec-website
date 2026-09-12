@@ -9,10 +9,12 @@ import type { RefObject } from "react";
  *
  * - eyebrowRef/eyebrowTextRef/headingRef: 対象の組(eyebrow要素・eyebrowテキスト要素・見出しテキスト要素)
  * - scale: 4.2節の表のとおりのスケール値(未指定時は1)
- * - groupId: 指定した場合、同じgroupIdを持つ他のインスタンスとeyebrowの文字サイズを統一する
- *   (最初に登録されたインスタンスの計算結果を基準値として、以降のインスタンスへ上書き適用する。
- *   mockup/index.html の matchGroups の「最初のid = 基準」という順序を、コンポーネントの
- *   マウント順(= 描画順)で再現している)。
+ * - groupId: 指定した場合、同じgroupIdを持つ他のインスタンスとeyebrowの文字サイズを統一する。
+ * - isReference: グループ内で基準とするインスタンスに明示的に`true`を指定する
+ *   (詳細設計書 4.2節-3「Servicesの計算結果を基準値とする」というルールを、
+ *   コンポーネントのマウント順という暗黙の前提ではなく、呼び出し側の明示的なフラグで表現する。
+ *   レビュー結果報告書 R-3対応)。同じgroupId内で`isReference: true`が指定されなかった場合は、
+ *   後方互換のフォールバックとして最初に登録されたインスタンスを基準として扱う。
  */
 export type EyebrowSyncParams = {
   eyebrowRef: RefObject<HTMLElement | null>;
@@ -20,6 +22,7 @@ export type EyebrowSyncParams = {
   headingRef: RefObject<HTMLElement | null>;
   scale?: number;
   groupId?: string;
+  isReference?: boolean;
 };
 
 type RegistryEntry = EyebrowSyncParams;
@@ -55,14 +58,18 @@ function applyGroups(): void {
   });
 
   groups.forEach((entries) => {
-    const [reference, ...followers] = entries;
+    // isReference:trueが指定されたインスタンスを基準とする。未指定の場合は
+    // 後方互換のため最初に登録されたインスタンスにフォールバックする。
+    const reference = entries.find((entry) => entry.isReference) ?? entries[0];
     const referenceEl = reference?.eyebrowRef.current;
     if (!referenceEl) return;
     const size = getComputedStyle(referenceEl).fontSize;
-    followers.forEach((entry) => {
-      const el = entry.eyebrowRef.current;
-      if (el) el.style.fontSize = size;
-    });
+    entries
+      .filter((entry) => entry !== reference)
+      .forEach((entry) => {
+        const el = entry.eyebrowRef.current;
+        if (el) el.style.fontSize = size;
+      });
   });
 }
 
@@ -82,7 +89,7 @@ function bindGlobalListenersOnce(): void {
 }
 
 export function useEyebrowAutoScale(params: EyebrowSyncParams): void {
-  const { eyebrowRef, eyebrowTextRef, headingRef, scale, groupId } = params;
+  const { eyebrowRef, eyebrowTextRef, headingRef, scale, groupId, isReference } = params;
 
   useEffect(() => {
     const entry: RegistryEntry = {
@@ -91,6 +98,7 @@ export function useEyebrowAutoScale(params: EyebrowSyncParams): void {
       headingRef,
       scale,
       groupId,
+      isReference,
     };
     registry.add(entry);
     bindGlobalListenersOnce();
@@ -98,7 +106,7 @@ export function useEyebrowAutoScale(params: EyebrowSyncParams): void {
     return () => {
       registry.delete(entry);
     };
-  }, [eyebrowRef, eyebrowTextRef, headingRef, scale, groupId]);
+  }, [eyebrowRef, eyebrowTextRef, headingRef, scale, groupId, isReference]);
 }
 
 /**

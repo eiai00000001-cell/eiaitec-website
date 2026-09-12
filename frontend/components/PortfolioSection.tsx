@@ -1,5 +1,5 @@
 import { SectionIconRow } from "./SectionIconRow";
-import { SECTION_EYEBROW_GROUP_ID } from "./ServicesSection";
+import { SECTION_EYEBROW_GROUP_ID } from "@/lib/constants";
 
 const CASE_STEPS = [
   { key: "01", label: "方向性のヒアリング(目的・ターゲット・トーン)" },

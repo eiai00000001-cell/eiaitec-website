@@ -1,7 +1,7 @@
 import { SectionIconRow } from "./SectionIconRow";
+import { SECTION_EYEBROW_GROUP_ID } from "@/lib/constants";
 
 const SERVICES_EYEBROW_SCALE = 2 / 3;
-export const SECTION_EYEBROW_GROUP_ID = "section-eyebrow-group";
 
 const SERVICE_ITEMS = [
   {
@@ -23,6 +23,11 @@ const SERVICE_ITEMS = [
 
 /**
  * 詳細設計書 4.4節(F-03: Servicesセクション)。
+ *
+ * 詳細設計書 4.2節-3のとおり、Portfolio/About/Contactのeyebrowフォントサイズは
+ * このServicesの計算結果を基準値として統一される。`SectionIconRow`へ`isReference`を
+ * 明示的に渡すことで、この基準セクションであることをマウント順に頼らず表現している
+ * (レビュー結果報告書 R-3対応)。
  */
 export function ServicesSection() {
   return (
@@ -35,6 +40,7 @@ export function ServicesSection() {
           headingText="サービス内容"
           scale={SERVICES_EYEBROW_SCALE}
           groupId={SECTION_EYEBROW_GROUP_ID}
+          isReference
           iconSrc="/images/worker2.png"
           iconWidth={1536}
           iconHeight={1024}

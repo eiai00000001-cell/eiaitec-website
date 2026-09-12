@@ -47,6 +47,7 @@
     │   └── favicon.ico     Next.js既定favicon(create-next-app初期生成のまま)
     ├── components/         セクション・UIコンポーネント(詳細は4章参照)
     ├── hooks/              画面同期処理のカスタムフック(詳細は4章参照)
+    ├── lib/                共有定数(navLinks.ts / constants.ts)
     ├── types/contact.ts    お問い合わせフォーム関連の型定義(F-07向けに先行定義)
     ├── public/images/      実ファイル化した画像素材(F-09)
     ├── __tests__/          Vitestテスト(hooks/ components/ test-utils/)
@@ -87,7 +88,7 @@ npm run test    # Vitestユニットテスト(1回実行)
 
 - フレームワーク: Vitest 4 + React Testing Library(`@testing-library/react` / `@testing-library/dom` / `@testing-library/jest-dom`)
 - 実行コマンド: `npm run test`(= `vitest run`)
-- 結果: **13 test files / 22 tests、すべて成功(失敗0件)**(2026-09-12実行)
+- 結果: **13 test files / 24 tests、すべて成功(失敗0件)**(2026-09-12実行、レビュー結果報告書R-1・R-3対応でテスト2件追加)
 - テスト対象:
   - `hooks/useEyebrowAutoScale.ts`(eyebrow自動スケール・グループ内フォントサイズ統一)
   - `hooks/useSectionIconCenter.ts`(Services/Portfolioアイコン垂直中央揃え)
@@ -106,7 +107,7 @@ npm run test    # Vitestユニットテスト(1回実行)
 | D-2 | 詳細設計書4.2節・4.6節・4.7節・4.1節の同期処理(`mockup/index.html`では単一のIIFE`syncAll`)を、`useEyebrowAutoScale` / `useSectionIconCenter` / `useAboutMarkCenter` / `useSyncHeaderHeight`の4つの小さなカスタムフックに分割した。 | コンポーネント単位で責務を分離し、それぞれ独立してテスト可能にするため。各フックは同じ`load`/`resize`/`document.fonts.ready`イベントを購読しており、最終的な計算結果・見た目は目視確認のとおり同一。 |
 | D-3 | Heroの見出しテキストを囲うspan要素について、`mockup/index.html`では`<span id="heroLine1">`の閉じタグが`</h1>`まで省略されている(HTMLの暗黙補完に依存)。JSXでは閉じタグが必須のため、明示的に`</span>`を追加した。 | 見た目・eyebrow幅測定の結果に影響はなく、JSXの構文要件に対応するための最小限の修正。 |
 | D-4 | ヘッダーロゴリンクを、`mockup/index.html`の`onclick`によるJavaScriptスムーススクロールから、通常の`<a href="#">`+CSS`scroll-behavior:smooth`に置き換えた。 | 詳細設計書4.1節-2の指示(独自スクロール制御を行わない)に従った意図的な変更。到達結果(ページ最上部へのスクロール)は同一。 |
-| D-5 | `app/page.tsx`に`export const dynamic = "force-dynamic"`を設定し、トップページ全体をリクエスト時レンダリングにした。 | 詳細設計書4.12節-3は「`SiteFooter`は静的にプリレンダリングしない」としているが、Next.js App Routerの動的レンダリング設定はルート単位でしか指定できないため、`SiteFooter`を含むページ全体を動的化する方式で対応した。 |
+| D-5 | `app/page.tsx`に`export const revalidate = 86400;`を設定し、トップページ全体を1日単位のISR(Incremental Static Regeneration)対象にした。 | 詳細設計書4.12節-3は「`SiteFooter`は静的にプリレンダリングしない」としているが、Next.js App Routerの動的レンダリング設定はルート単位でしか指定できないため、`SiteFooter`を含むページ全体を対象とする方式で対応した。当初は`export const dynamic = "force-dynamic"`(リクエスト時レンダリング)としていたが、レビュー結果報告書R-2の指摘を受け、年に1回しか変化しない値の更新には過剰であったため`revalidate`によるISRに変更し、静的最適化を維持している(2026-09-12)。 |
 | D-6 | モバイルナビの開閉ボタンを、お問い合わせボタンの**右側**に配置した。 | `docs/02_architect/mockups/mobile-nav.html`本文中のキャプションは「お問い合わせボタンの左に表示」と記載されているが、同ファイルの実際のHTML構造・添付スクリーンショット(`mobile-nav_closed.png`等)はいずれも開閉ボタンが右側にある構成のため、視覚資料(一次情報)を優先した。7章の要確認事項にも記載。 |
 | D-7 | 画面右下に常時固定表示の「TOPに戻る」ボタン(`components/BackToTopButton.tsx`)を新規追加した。 | クライアントからの追加要望(2026-09-12)。詳細設計書・機能仕様書には未記載の新規UI要素のため、次回設計書更新時に正式反映を検討する。 |
 | D-8 | モバイル表示(640px以下)のヘッダーから「お問い合わせ」ボタンを非表示にし(`.header-contact`)、ロゴ(左)とハンバーガーメニュー(右)のみの構成にした。 | クライアントからの追加要望(2026-09-12)。お問い合わせ導線は展開後のモバイルメニュー内`.panel-cta`に一本化されており機能的な後退はない。 |
@@ -134,3 +135,4 @@ npm run test    # Vitestユニットテスト(1回実行)
 | v1.1 | 2026-09-12 | ユーザー確認により要確認事項を一部解決。`favicon.ico`(Next.js既定)を削除し`icon.png`のみをfaviconとして使用する構成に変更(★C-1)。モバイルナビ開閉ボタンの右側配置を正として確定(★C-2、コード変更なし)。Contact注記文言はF-07実装時に削除する方針を確定(★C-5、コード変更なし)。未使用の初期生成ファイル6件を削除(★C-6)。build/lint再確認済み。 |
 | v1.2 | 2026-09-12 | クライアント要望によるデザイン修正3件を実装。①画面右下固定の「TOPに戻る」ボタン新規追加(D-7)。②モバイルヘッダーの「お問い合わせ」ボタンを非表示にしロゴ+ハンバーガーの2要素構成に変更(D-8)。③Hero見出し「アップデート。」を`.no-split`(white-space:nowrap)で保護し単語途中での改行を防止、基本設計書7章に日本語改行の実装ルールとして明記(D-9)。build/lint/test(22件)再確認済み。 |
 | v1.3 | 2026-09-12 | 動作確認中に発見した不具合2件を修正。①開発サーバーをLAN内IP(例: `192.168.1.2:3000`)からアクセスするとNext.jsの既定セキュリティ挙動によりクライアント側JS(eyebrow自動拡大等)が動作しない問題に対し、`next.config.ts`に`allowedDevOrigins`を追加(本番ビルドには影響しない開発環境限定の設定)。②Chrome DevToolsのデバイスエミュレーション(例: 405px幅)でモバイルヘッダーのロゴ+ハンバーガーが2段に折り返される不具合を修正(D-10)。build/lint/test(22件)再確認済み。 |
+| v1.4 | 2026-09-12 | レビュー結果報告書のR-1〜R-6(中2件・低4件)に対応。①モバイルメニュー閉状態のパネル内リンクに`tabIndex={-1}`を付与しキーボードフォーカス不可に(R-1)。②`app/page.tsx`の`force-dynamic`を`revalidate = 86400`(ISR)に置き換え静的最適化を復元(R-2、D-5更新)。③`useEyebrowAutoScale`に`isReference`フラグを追加し、eyebrowグループの基準セクションをマウント順ではなく明示指定で表現するようリファクタリング(R-3)。④`lib/navLinks.ts`を新設しNAV_LINKS定義の重複を解消(R-4)。⑤`lib/constants.ts`を新設し`SECTION_EYEBROW_GROUP_ID`の逆輸入構成を解消(R-5)。⑥`next.config.ts`のLAN IPハードコードを環境変数`DEV_ALLOWED_ORIGIN`(`.env.local`)経由に変更(R-6、`.env.example`更新)。関連テストを追加・更新し、build/lint/test(13ファイル/24件)再確認済み。R-7・R-8は本対応の対象外(R-7はarchitectureフェーズ、R-8はF-07着手時に対応)。 |

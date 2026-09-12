@@ -1,12 +1,7 @@
 import Image from "next/image";
 import { HeaderHeightSync } from "./HeaderHeightSync";
 import { MobileNavMenu } from "./MobileNavMenu";
-
-const NAV_LINKS = [
-  { href: "#services", label: "サービス" },
-  { href: "#portfolio", label: "実績" },
-  { href: "#about", label: "EIAI TECとは" },
-] as const;
+import { NAV_LINKS } from "@/lib/navLinks";
 
 /**
  * 詳細設計書 4.1節(F-01: ヘッダー・グローバルナビゲーション)。

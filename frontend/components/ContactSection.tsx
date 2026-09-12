@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { SectionHeading } from "./SectionHeading";
-import { SECTION_EYEBROW_GROUP_ID } from "./ServicesSection";
+import { SECTION_EYEBROW_GROUP_ID } from "@/lib/constants";
 import { ContactForm } from "./ContactForm";
 
 /**

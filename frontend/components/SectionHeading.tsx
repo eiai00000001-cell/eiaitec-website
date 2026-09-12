@@ -12,6 +12,11 @@ export type SectionHeadingProps = {
   scale?: number;
   groupId?: string;
   /**
+   * `groupId`で統一するグループ内の基準インスタンスであることを示すフラグ。
+   * `EyebrowHeading`にそのまま引き渡す(レビュー結果報告書 R-3対応)。
+   */
+  isReference?: boolean;
+  /**
    * 見出しテキスト要素への外部参照。Aboutセクションのロゴ中央揃え(4.7節)のように、
    * 見出し要素の座標を本コンポーネント外でも利用したい場合に指定する。
    * 未指定時は内部で生成したrefを使用する。
@@ -35,6 +40,7 @@ export function SectionHeading({
   description,
   scale,
   groupId,
+  isReference,
   headingRef: externalHeadingRef,
   ref,
 }: SectionHeadingProps) {
@@ -49,6 +55,7 @@ export function SectionHeading({
         headingRef={headingRef}
         scale={scale}
         groupId={groupId}
+        isReference={isReference}
       />
       <div>
         <h2>

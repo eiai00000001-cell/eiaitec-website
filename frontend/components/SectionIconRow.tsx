@@ -12,6 +12,11 @@ export type SectionIconRowProps = {
   headingText: string;
   scale?: number;
   groupId?: string;
+  /**
+   * `groupId`で統一するグループ内の基準インスタンスであることを示すフラグ。
+   * `SectionHeading`にそのまま引き渡す(レビュー結果報告書 R-3対応)。
+   */
+  isReference?: boolean;
   iconSrc: string;
   iconWidth: number;
   iconHeight: number;
@@ -29,6 +34,7 @@ export function SectionIconRow({
   headingText,
   scale,
   groupId,
+  isReference,
   iconSrc,
   iconWidth,
   iconHeight,
@@ -47,6 +53,7 @@ export function SectionIconRow({
         headingText={headingText}
         scale={scale}
         groupId={groupId}
+        isReference={isReference}
       />
       <Image
         ref={iconRef}

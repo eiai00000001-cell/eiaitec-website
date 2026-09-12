@@ -12,6 +12,12 @@ export type EyebrowHeadingProps = {
   headingRef: RefObject<HTMLElement | null>;
   scale?: number;
   groupId?: string;
+  /**
+   * `groupId`で統一するグループ内の基準インスタンスであることを示すフラグ。
+   * 詳細設計書 4.2節-3「Servicesを基準とする」というルールを明示するために使用する
+   * (レビュー結果報告書 R-3対応)。
+   */
+  isReference?: boolean;
 };
 
 /**
@@ -28,11 +34,12 @@ export function EyebrowHeading({
   headingRef,
   scale,
   groupId,
+  isReference,
 }: EyebrowHeadingProps) {
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const eyebrowTextRef = useRef<HTMLSpanElement>(null);
 
-  useEyebrowAutoScale({ eyebrowRef, eyebrowTextRef, headingRef, scale, groupId });
+  useEyebrowAutoScale({ eyebrowRef, eyebrowTextRef, headingRef, scale, groupId, isReference });
 
   return (
     <p className="eyebrow" id={id} ref={eyebrowRef}>

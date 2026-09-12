@@ -67,6 +67,25 @@ describe("MobileNavMenu (F-08)", () => {
     expect(screen.getByRole("button", { name: "メニューを開く" })).toBeInTheDocument();
   });
 
+  it("keeps panel links unfocusable while closed and focusable once opened (R-1)", () => {
+    setMatchMedia(false);
+    render(<MobileNavMenu />);
+
+    const servicesLink = screen.getByText("サービス").closest("a");
+    const ctaLink = screen.getByText("お問い合わせ").closest("a");
+    expect(servicesLink).toHaveAttribute("tabIndex", "-1");
+    expect(ctaLink).toHaveAttribute("tabIndex", "-1");
+
+    fireEvent.click(screen.getByRole("button", { name: "メニューを開く" }));
+
+    expect(screen.getByText("サービス").closest("a")).not.toHaveAttribute("tabIndex");
+    expect(screen.getByText("お問い合わせ").closest("a")).not.toHaveAttribute("tabIndex");
+
+    fireEvent.click(screen.getByRole("button", { name: "メニューを閉じる" }));
+
+    expect(screen.getByText("サービス").closest("a")).toHaveAttribute("tabIndex", "-1");
+  });
+
   it("resets to closed when the viewport grows past the mobile breakpoint", () => {
     const { triggerChange } = setMatchMedia(false);
     render(<MobileNavMenu />);

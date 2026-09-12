@@ -11,13 +11,14 @@ type HarnessProps = {
   scale?: number;
   groupId?: string;
   eyebrowFontSize?: string;
+  isReference?: boolean;
 };
 
-function Harness({ scale, groupId, eyebrowFontSize = "10px" }: HarnessProps) {
+function Harness({ scale, groupId, eyebrowFontSize = "10px", isReference }: HarnessProps) {
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const eyebrowTextRef = useRef<HTMLSpanElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useEyebrowAutoScale({ eyebrowRef, eyebrowTextRef, headingRef, scale, groupId });
+  useEyebrowAutoScale({ eyebrowRef, eyebrowTextRef, headingRef, scale, groupId, isReference });
   return (
     <div>
       <p ref={eyebrowRef} style={{ fontSize: eyebrowFontSize }}>
@@ -85,7 +86,47 @@ describe("useEyebrowAutoScale", () => {
     expect(eyebrow.style.fontSize).toBe("10px");
   });
 
-  it("overrides follower eyebrows in the same group with the first-registered (reference) size", () => {
+  it("overrides follower eyebrows in the same group with the isReference:true instance's size, regardless of mount order (R-3)", () => {
+    // "a"を先にマウントするが、isReference:trueは"b"側に付与する。
+    // マウント順(登録順)ではなく明示的なisReferenceフラグが基準を決めることを検証する。
+    function TwoMembers() {
+      return (
+        <div>
+          <div data-testid="a">
+            <Harness groupId="group-1" eyebrowFontSize="10px" />
+          </div>
+          <div data-testid="b">
+            <Harness groupId="group-1" eyebrowFontSize="20px" isReference />
+          </div>
+        </div>
+      );
+    }
+
+    const { getByTestId } = render(<TwoMembers />);
+    const a = getByTestId("a");
+    const b = getByTestId("b");
+
+    const aText = a.querySelector("span") as HTMLSpanElement;
+    const aHeading = a.querySelector("h2") as HTMLHeadingElement;
+    mockRect(aText, { width: 40 });
+    mockRect(aHeading, { width: 40 }); // a individually -> 10 * (40/40) = 10px (follower)
+
+    const bText = b.querySelector("span") as HTMLSpanElement;
+    const bHeading = b.querySelector("h2") as HTMLHeadingElement;
+    mockRect(bText, { width: 50 });
+    mockRect(bHeading, { width: 100 }); // b -> 20 * (100/50) = 40px (isReference)
+
+    fireResize();
+
+    const aEyebrow = a.querySelector("p") as HTMLParagraphElement;
+    const bEyebrow = b.querySelector("p") as HTMLParagraphElement;
+
+    expect(bEyebrow.style.fontSize).toBe("40px");
+    // aは先にマウントされているが、isReferenceを持つbのサイズで上書きされる
+    expect(aEyebrow.style.fontSize).toBe(bEyebrow.style.fontSize);
+  });
+
+  it("falls back to the first-registered instance as reference when no member has isReference (backward compatibility)", () => {
     function TwoMembers() {
       return (
         <div>
@@ -106,7 +147,7 @@ describe("useEyebrowAutoScale", () => {
     const aText = a.querySelector("span") as HTMLSpanElement;
     const aHeading = a.querySelector("h2") as HTMLHeadingElement;
     mockRect(aText, { width: 50 });
-    mockRect(aHeading, { width: 100 }); // a -> 10 * (100/50) = 20px (reference)
+    mockRect(aHeading, { width: 100 }); // a -> 10 * (100/50) = 20px (fallback reference)
 
     const bText = b.querySelector("span") as HTMLSpanElement;
     const bHeading = b.querySelector("h2") as HTMLHeadingElement;
@@ -119,7 +160,6 @@ describe("useEyebrowAutoScale", () => {
     const bEyebrow = b.querySelector("p") as HTMLParagraphElement;
 
     expect(aEyebrow.style.fontSize).toBe("20px");
-    // bはgroup内の基準(a)のサイズで上書きされる
     expect(bEyebrow.style.fontSize).toBe(aEyebrow.style.fontSize);
   });
 

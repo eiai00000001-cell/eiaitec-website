@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const NAV_LINKS = [
-  { href: "#services", label: "サービス" },
-  { href: "#portfolio", label: "実績" },
-  { href: "#about", label: "EIAI TECとは" },
-] as const;
+import { NAV_LINKS } from "@/lib/navLinks";
 
 const MOBILE_BREAKPOINT_QUERY = "(max-width:640px)";
 
@@ -56,11 +51,21 @@ export function MobileNavMenu() {
         <div className="mobile-panel-inner">
           <nav>
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} onClick={closeMenu}>
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={closeMenu}
+                tabIndex={isOpen ? undefined : -1}
+              >
                 {link.label}
               </a>
             ))}
-            <a href="#contact" className="panel-cta" onClick={closeMenu}>
+            <a
+              href="#contact"
+              className="panel-cta"
+              onClick={closeMenu}
+              tabIndex={isOpen ? undefined : -1}
+            >
               お問い合わせ
             </a>
           </nav>
